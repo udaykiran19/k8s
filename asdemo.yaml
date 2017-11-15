@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: asdemo
+  labels:
+    app: asdemo
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+    name: http
+  selector:
+    app: asdemo
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: asdemo
+  labels:
+    app: asdemo
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: asdemo
+      labels:
+        app: asdemo
+    spec:
+      containers:
+      - name: asdemo
+        image: udaykiranka/asdemo
+        ports:
+        - containerPort: 80
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: asdemo
+  namespace: default
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1beta1
+    kind: Deployment
+    name: asdemo
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 50
